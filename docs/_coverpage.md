@@ -8,4 +8,5 @@
 
 
 
-[文档](users/user-list)
+[Github](https://github.com/jumpserver/jumpserver)
+[开始阅读](users/user-list)
