@@ -2,7 +2,8 @@
 #
 
 import datetime
-import json
+from typing import List
+
 import requests
 import urllib3
 from httpsig.requests_auth import HTTPSignatureAuth
@@ -31,7 +32,7 @@ def get_users(jms_url, auth):
     }
 
     response = requests.get(url, auth=auth, headers=headers, verify=False)
-    return json.loads(response.text)
+    return response.json() if isinstance(response.json(), List) else response.json().get('results')
 
 
 def detele_user(jms_url, auth, user_id):
