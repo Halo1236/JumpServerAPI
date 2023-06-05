@@ -15,6 +15,8 @@ KeyID = 'xxxxxxxx'
 SecretID = 'xxxxxxxxxxx'
 org_id = '00000000-0000-0000-0000-000000000002'
 
+pagesize = 20
+
 
 def get_auth(KeyID, SecretID):
     signature_headers = ['(request-target)', 'accept', 'date']
@@ -23,7 +25,7 @@ def get_auth(KeyID, SecretID):
 
 
 def get_users(jms_url, auth):
-    url = jms_url + '/api/v1/users/users/'
+    url = jms_url + '/api/v1/users/users/?offset=0&limit={}'.format(pagesize)
     gmt_form = '%a, %d %b %Y %H:%M:%S GMT'
     headers = {
         'Accept': 'application/json',
@@ -60,16 +62,18 @@ def start():
     print("\n", "#" * 20, "调用用户列表接口，获取所有用户", "#" * 20)
 
     auth = get_auth(KeyID, SecretID)
-    users_all = get_users(jms_url, auth)
-    for user_json in users_all:
-        if user_json['username'] not in username_white_list:
-            print("\n", "#" * 20, "开始删除用户：{}".format(user_json['username']), "#" * 20)
-            rs = detele_user(jms_url, auth, user_json['id'])
-            if rs:
-                print("\n", "#" * 20, "删除：{} 成功！".format(user_json['username']), "#" * 20)
-            else:
-                print("\n", "#" * 20, "删除：{} 失败！".format(user_json['username']), "#" * 20)
-
+    while True:
+        users_all = get_users(jms_url, auth)
+        for user_json in users_all:
+            if user_json['username'] not in username_white_list:
+                print("\n", "#" * 20, "开始删除用户：{}".format(user_json['username']), "#" * 20)
+                rs = detele_user(jms_url, auth, user_json['id'])
+                if rs:
+                    print("\n", "#" * 20, "删除：{} 成功！".format(user_json['username']), "#" * 20)
+                else:
+                    print("\n", "#" * 20, "删除：{} 失败！".format(user_json['username']), "#" * 20)
+        if len(users_all) < 20:
+            break
     print("\n", "#" * 20, "清理完成！", "#" * 20)
 
 
